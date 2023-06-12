@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Album;
-use App\Models\TokenUser;
+use App\Models\User;
 
-class AlbumController extends Controller
+
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +15,7 @@ class AlbumController extends Controller
      */
     public function index()
     {
-        return album::get();
+        return User::get();
     }
 
     /**
@@ -26,7 +26,6 @@ class AlbumController extends Controller
     public function create()
     {
         
-
     }
 
     /**
@@ -37,35 +36,18 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $token= $request->header('token');
         
-        $checkTokenIsValid = TokenUser::where('token',$token)->first();
+       $userCreate = User::create([
+           'name' => $request->name,
+           'username'   => $request->username,
+           'email' => $request->email,
+           'password' => bcrypt($request->password)
+        ]);
 
-
-        if(empty($token)){
-            return response()->json([
-                'code' => 401,
-                'message' => 'Bạn không có quyền truy cập'
-            ], 401);
-        } elseif(empty($checkTokenIsValid)){
-            return response()->json([
-                'code' => 401,
-                'message' => "Token không hợp lệ",
-            ], 401);
-        } else {
-            
-            $albumCreate = Album::create([
-                'link_img'  => $request->link_img,
-                'link'      => $request->link,
-                'status'    => $request->status,
-                'create_at' => Now(),
-            ]);
-
-            return response()->json([
-                'code' => 200,
-                'data' => $albumCreate
-            ],200);
-        }
+        return response()->json([
+            'code' => 200,
+            'data' => $userCreate
+        ], 200);
     }
 
     /**
