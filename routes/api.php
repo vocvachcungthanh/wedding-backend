@@ -40,4 +40,15 @@ Route::prefix('auth')->group(function(){
     Route::post('/login', [AuthController::class, 'login']);
     Route::delete('/logout', [AuthController::class,'logout']);
     Route::post('/refresh-token',[AuthController::class,'refreshToken']);
+    Route::get('/info',[AuthController::class,'show']);
+});
+
+Route::prefix('sliders')->group(function(){
+    Route::post('/edit', [SliderController::class,'edit']);
+    Route::post('/list', [SliderController::class,'paginate']);
+});
+
+
+Route::prefix('menus')->group(function(){
+    Route::post('/list', [MenuController::class,'getList']);
 });

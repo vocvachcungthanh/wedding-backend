@@ -15,7 +15,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        return User::get();
+        $use = User::get();
+
+        return response()->json([
+            'code' => 2000,
+            'data' => $use
+        ]);
     }
 
     /**
@@ -44,10 +49,20 @@ class UserController extends Controller
            'password' => bcrypt($request->password)
         ]);
 
-        return response()->json([
-            'code' => 200,
-            'data' => $userCreate
-        ], 200);
+        if($userCreate) {
+            return response()->json([
+                'code' => 200,
+                'data' => $userCreate,
+                'message' => "Thêm tài khoản thành công"
+            ], 200);
+        } else {
+            return response()->json([
+                'code' => 400,
+                'message' => "Thêm tài khoản thất bại"
+            ], 400);
+        }
+
+        
     }
 
     /**

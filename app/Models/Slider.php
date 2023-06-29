@@ -12,6 +12,7 @@ class Slider extends Model
     protected $fillable = [
         'link_img',
         'link',
+        'status',
         'created_at',
         'updated_at'
     ];

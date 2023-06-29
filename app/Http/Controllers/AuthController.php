@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\TokenUser;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -13,9 +14,9 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        
     }
 
     /**
@@ -45,9 +46,34 @@ class AuthController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
+
     {
-        //
+        $token= $request->header('access_token');
+        
+        $checkTokenIsValid = TokenUser::where('token',$token)->first();
+       
+
+        if(empty($token)){
+            return response()->json([
+                'code' => 401,
+                'message' => 'Bạn không có quyền truy cập'
+            ], 401);
+        } elseif(empty($checkTokenIsValid)){
+            return response()->json([
+                'code' => 401,
+                'message' => "Token không hợp lệ",
+            ], 401);
+        } else {
+            
+            $info = User::where('id', $checkTokenIsValid->user_id)->first();
+            
+            return response()->json([
+                'code' => 200,
+                'data' => $info,
+                'message'   => "Lấy thông tin tài khoản thành công"
+            ],200);
+        }
     }
 
     /**
@@ -90,9 +116,10 @@ class AuthController extends Controller
             'password' => $request->password,
         ];
 
-        // check user có tài khoản
+        $checkAuth = auth()->attempt($dataCheckLogin);
 
-        if(auth()->attempt($dataCheckLogin)){
+
+        if($checkAuth){
 
             $id = auth()->id();
 
@@ -113,6 +140,7 @@ class AuthController extends Controller
            return response()->json([
             'code' => 200,
             'data' =>  $tokenUser,
+            'message' => "Đăng nhập thành công"
            ], 200);
         } else {
             return response()->json([
@@ -145,30 +173,30 @@ class AuthController extends Controller
             return response()->json([
                 'code' => 200,
                 'data' => $dataToken,
-                'message' => "refresh token success"
+                'message' => "Làm mới token thành công"
             ], 200);
         } else {
             return response()->json([
                 'code' => 401,
                 'refresh_token' => $refreshToken,
-                'message' => 'refresh token không dúng hoặc không tồn tại'
+                'message' => 'Làm mới token không thành công'
             ],401);
         }
 
     }
 
     public function logout(Request $request){
-        $token = $request->header('token');
-        
+        $token = $request->header('access_token');
+
         $checkTokenIsValid = TokenUser::where('token', $token)->first();
 
         if(!empty($checkTokenIsValid)){
-            $checkTokenIsValid->delete();
+            $result = $checkTokenIsValid->delete();
 
             return response()->json([
                 'code' => 200,
-                'message' => "đăng xuất thành công",
-                'status' => true,
+                'data' => $result,
+                'message'   => "Đăng xuất thành công"
             ], 200);
         } else {
             return response()->json([

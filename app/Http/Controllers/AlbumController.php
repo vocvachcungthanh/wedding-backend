@@ -15,7 +15,12 @@ class AlbumController extends Controller
      */
     public function index()
     {
-        return album::get();
+        $albums = album::get();
+
+        return response()->json([
+            'code' => 200,
+            'data' => $albums
+        ], 200);
     }
 
     /**
@@ -37,7 +42,7 @@ class AlbumController extends Controller
      */
     public function store(Request $request)
     {
-        $token= $request->header('token');
+        $token= $request->header('access_token');
         
         $checkTokenIsValid = TokenUser::where('token',$token)->first();
 
@@ -63,7 +68,8 @@ class AlbumController extends Controller
 
             return response()->json([
                 'code' => 200,
-                'data' => $albumCreate
+                'data' => $albumCreate,
+                "message"   => "Thêm album thành công"
             ],200);
         }
     }
