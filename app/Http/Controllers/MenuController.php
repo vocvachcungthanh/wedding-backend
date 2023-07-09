@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\TokenUser;
 use App\Models\Menu;
 
 class MenuController extends Controller
@@ -41,43 +40,25 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
-        $token= $request->header('access_token');
-        
-        $checkTokenIsValid = TokenUser::where('token',$token)->first();
+        $create = Menu::create([
+            'name' => $request->name,
+            'link'  => $request->link,
+            'status'    => $request->status,
+            'created_at' => now()
+        ]);
 
-        if(empty($token)){
+        if($create) {
             return response()->json([
-                'code' => 401,
-                'message' => 'Bạn không có quyền truy cập'
-            ], 401);
-        } elseif(empty($checkTokenIsValid)){
+                'code' => 200,
+                'data' =>  $create,
+                'message' => "Thêm menu thành công"
+                
+            ],200);
+        } else{
             return response()->json([
-                'code' => 401,
-                'message' => "Bạn cần đăng nhập để tiếp tục",
-            ], 401);
-        } else {
-            
-            $create = Menu::create([
-                'name' => $request->name,
-                'link'  => $request->link,
-                'status'    => $request->status,
-                'created_at' => now()
-            ]);
-
-            if($create) {
-                return response()->json([
-                    'code' => 200,
-                    'data' =>  $create,
-                    'message' => "Thêm menu thành công"
-                    
-                ],200);
-            } else{
-                return response()->json([
-                    'code' => 400,
-                    'message' => "Thêm menu thất bại",
-                ], 400);
-            }
-          
+                'code' => 400,
+                'message' => "Thêm menu thất bại",
+            ], 400);
         }
     }
 
@@ -112,7 +93,24 @@ class MenuController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $update =   menu::where('id', $id)->update([
+            'name' => $request->menu_name,
+            'link' => $request->menu_link,
+            'status'     => $request->menu_status
+        ]);
+
+        if($update = 1) {
+            return response()->json([
+                'code' => 200,
+                'data' =>  $update,
+                'message' => "Cập nhật thành công"
+            ],200);
+        } else{
+            return response()->json([
+                'code' => 400,
+                'message' => "Cập nhật thất bại",
+            ], 400);
+        }
     }
 
     /**
@@ -128,24 +126,7 @@ class MenuController extends Controller
 
     public function getList(Request $request){
         
-        $token= $request->header('access_token');
-   
-        $checkTokenIsValid = TokenUser::where('token',$token)->first();
-       
-
-        if(empty($token)){
-            return response()->json([
-                'code' => 401,
-                'message' => 'Bạn không có quyền truy cập'
-            ], 401);
-        } elseif(empty($checkTokenIsValid)){
-            return response()->json([
-                'code' => 401,
-                'message' => "Token không hợp lệ",
-            ], 401);
-        } else {
-            
-            $Menus =   Menu::orderBy('id', 'desc')->get();
+        $Menus =   Menu::orderBy('id', 'desc')->get();
 
             if($Menus) {
                 return response()->json([
@@ -159,7 +140,5 @@ class MenuController extends Controller
                     'message' => "Không lấy được menu",
                 ], 400);
             }
-          
-        }
     }
 }

@@ -40,15 +40,16 @@ Route::prefix('auth')->group(function(){
     Route::post('/login', [AuthController::class, 'login']);
     Route::delete('/logout', [AuthController::class,'logout']);
     Route::post('/refresh-token',[AuthController::class,'refreshToken']);
-    Route::get('/info',[AuthController::class,'show']);
+    Route::get('/info',[AuthController::class,'show'])->middleware('checkToken');
 });
 
 Route::prefix('sliders')->group(function(){
-    Route::post('/edit', [SliderController::class,'edit']);
-    Route::post('/list', [SliderController::class,'paginate']);
+    Route::post('/edit', [SliderController::class,'edit'])->middleware('checkToken');
+    Route::post('/list', [SliderController::class,'paginate'])->middleware('checkToken');
 });
 
 
 Route::prefix('menus')->group(function(){
-    Route::post('/list', [MenuController::class,'getList']);
+    Route::post('/list', [MenuController::class,'getList'])->middleware('checkToken');
+    Route::post('/update/{id}', [MenuController::class,'update'])->middleware('checkToken');
 });

@@ -44,7 +44,7 @@ class SliderController extends Controller
      */
     public function store(Request $request)
     {
-        $token= $request->header('access_token');
+        $token= $request->cookie()['access_token'];
         
         $checkTokenIsValid = TokenUser::where('token',$token)->first();
 
@@ -103,41 +103,23 @@ class SliderController extends Controller
      */
     public function edit(Request $request)
     {
-        $token= $request->header('access_token');
-        
-        $checkTokenIsValid = TokenUser::where('token',$token)->first();
+        $update =   Slider::where('id', $request->id)->update([
+            'status' => $request->status,
+            'link_img' => $request->link_img,
+            'link'     => $request->link
+        ]);
 
-        if(empty($token)){
+        if($update = 1) {
             return response()->json([
-                'code' => 401,
-                'message' => 'Bạn không có quyền truy cập'
-            ], 401);
-        } elseif(empty($checkTokenIsValid)){
+                'code' => 200,
+                'data' =>  $update,
+                'message' => "Cập nhật thành công"
+            ],200);
+        } else{
             return response()->json([
-                'code' => 401,
-                'message' => "Token không hợp lệ",
-            ], 401);
-        } else {
-            
-            $update =   Slider::where('id', $request->id)->update([
-                'status' => $request->status,
-                'link_img' => $request->link_img,
-                'link'     => $request->link
-            ]);
-
-            if($update = 1) {
-                return response()->json([
-                    'code' => 200,
-                    'data' =>  $update,
-                    'message' => "Cập nhật thành công"
-                ],200);
-            } else{
-                return response()->json([
-                    'code' => 400,
-                    'message' => "Cập nhật thất bại",
-                ], 400);
-            }
-          
+                'code' => 400,
+                'message' => "Cập nhật thất bại",
+            ], 400);
         }
     }
 
@@ -152,7 +134,7 @@ class SliderController extends Controller
     {
 
 
-        $token= $request->header('access_token');
+        $token= $request->cookie()['access_token'];
         
         $checkTokenIsValid = TokenUser::where('token',$token)->first();
        
@@ -199,7 +181,7 @@ class SliderController extends Controller
      */
     public function destroy(Request $request ,$id)
     {
-        $token= $request->header('access_token');
+        $token= $request->cookie()['access_token'];
         
         $checkTokenIsValid = TokenUser::where('token',$token)->first();
        
@@ -236,38 +218,19 @@ class SliderController extends Controller
     }
 
     public function paginate(Request $request){
-        $token= $request->header('access_token');
-        
-        $checkTokenIsValid = TokenUser::where('token',$token)->first();
-       
+        $sliders =   Slider::orderBy('id', 'desc')->paginate($request->limit);
 
-        if(empty($token)){
+        if($sliders) {
             return response()->json([
-                'code' => 401,
-                'message' => 'Bạn không có quyền truy cập'
-            ], 401);
-        } elseif(empty($checkTokenIsValid)){
+                'code' => 200,
+                'data' =>  $sliders,
+                'message' => "Lấy slider thành công"
+            ],200);
+        } else{
             return response()->json([
-                'code' => 401,
-                'message' => "Token không hợp lệ",
-            ], 401);
-        } else {
-            
-            $sliders =   Slider::orderBy('id', 'desc')->paginate($request->limit);
-
-            if($sliders) {
-                return response()->json([
-                    'code' => 200,
-                    'data' =>  $sliders,
-                    'message' => "Lấy slider thành công"
-                ],200);
-            } else{
-                return response()->json([
-                    'code' => 400,
-                    'message' => "không lấy được slider",
-                ], 400);
-            }
-          
+                'code' => 400,
+                'message' => "không lấy được slider",
+            ], 400);
         }
     }
 }

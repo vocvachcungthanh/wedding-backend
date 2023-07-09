@@ -49,7 +49,8 @@ class AuthController extends Controller
     public function show(Request $request)
 
     {
-        $token= $request->header('access_token');
+  
+        $token= $request->cookie()['access_token'];
         
         $checkTokenIsValid = TokenUser::where('token',$token)->first();
        
@@ -152,7 +153,7 @@ class AuthController extends Controller
 
     public function refreshToken(Request $request){
         
-        $refreshToken = $request->header('refresh_token');
+        $refreshToken = $request->cookie()['refresh_token'];
         
         $checkRefreshTokenIsValid = TokenUser::where('refresh_token', $refreshToken)->first();
 
@@ -186,7 +187,7 @@ class AuthController extends Controller
     }
 
     public function logout(Request $request){
-        $token = $request->header('access_token');
+        $token= $request->cookie()['access_token'];
 
         $checkTokenIsValid = TokenUser::where('token', $token)->first();
 
